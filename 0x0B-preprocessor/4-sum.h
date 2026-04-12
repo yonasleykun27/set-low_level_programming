@@ -2,11 +2,10 @@
 #define SUM_H
 
 /**
- * File: 4-sum.h
- * Desc: Header file that defines a function-like macro SUM(x, y)
- * that computes the sum of the numbers x and y.
+ * SUM - Computes the sum of two numbers.
+ * @x: The first number.
+ * @y: The second number.
  */
-
 #define SUM(x, y) ((x) + (y))
 
 #endif
