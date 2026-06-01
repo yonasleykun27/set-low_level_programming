@@ -1,68 +1,63 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
 /**
- * main - Keygen generator for crackme5.
- * @argc: Argument count.
- * @argv: Argument vector (username passed as argv[1]).
- *
- * Return: Always 0.
+ * main - keygen for crackme5
  */
 int main(int argc, char *argv[])
 {
-	unsigned int i, sum = 0;
-	size_t len;
+	char charset[] = "A-CHRDw87lNS0E9B2TibgpnMVys5XzvtOGJcYLU+4mjW6fxqZeF3Qa1rPhdKIouk";
 	char key[7];
-	char *mask = "A-CHASING-NEVER-ELEMENTS-BUT-SUSTAINED-EXCELLENCE-IN-EVERY-STEP-THAT-WE-TAKE";
+	char *username;
+	int n, i, sum, product, max_val, seed, r;
 
 	if (argc != 2)
 	{
-		printf("Usage: %s username\n", argv[0]);
+		fprintf(stderr, "Usage: %s username\n", argv[0]);
 		return (1);
 	}
+	username = argv[1];
+	n = strlen(username);
 
-	len = strlen(argv[1]);
+	/* key[0]: f1(len) = (len ^ 0x3b) & 0x3f */
+	key[0] = charset[(n ^ 0x3b) & 0x3f];
 
-	/* Logic 1: Find offset character from string length */
-	key[0] = mask[(len ^ 59) & 63];
-
-	/* Logic 2: Calculate sum of char ascii values */
-	for (i = 0; i < len; i++)
-		sum += argv[1][i];
-	key[1] = mask[(sum ^ 79) & 63];
-
-	/* Logic 3: Multiply characters */
-	sum = 1;
-	for (i = 0; i < len; i++)
-		sum *= argv[1][i];
-	key[2] = mask[(sum ^ 85) & 63];
-
-	/* Logic 4: Max char calculation */
-	sum = argv[1][0];
-	for (i = 0; i < len; i++)
-	{
-		if ((char)sum < argv[1][i])
-			sum = argv[1][i];
-	}
-	srand(sum ^ 14);
-	key[3] = mask[rand() & 63];
-
-	/* Logic 5: Squares sum loop */
+	/* key[1]: f2(username, len) = (sum_chars ^ 0x4f) & 0x3f */
 	sum = 0;
-	for (i = 0; i < len; i++)
-		sum += argv[1][i] * argv[1][i];
-	key[4] = mask[(sum ^ 239) & 63];
+	for (i = 0; i < n; i++)
+		sum += (int)username[i];
+	key[1] = charset[(sum ^ 0x4f) & 0x3f];
 
-	/* Logic 6: Random iterations loop mapping */
+	/* key[2]: f3(username, len) = (product_chars ^ 0x55) & 0x3f */
+	product = 1;
+	for (i = 0; i < n; i++)
+		product *= (int)username[i];
+	key[2] = charset[(product ^ 0x55) & 0x3f];
+
+	/* key[3]: f4 = srand(max_char ^ 0xe), rand() & 0x3f */
+	max_val = (int)username[0];
+	for (i = 0; i < n; i++)
+		if ((int)username[i] > max_val)
+			max_val = (int)username[i];
+	seed = max_val ^ 0x0e;
+	srand((unsigned int)seed);
+	r = rand();
+	key[3] = charset[r & 0x3f];
+
+	/* key[4]: f5 = (sum(char*char) ^ 0xef) & 0x3f */
 	sum = 0;
-	for (i = 0; i < (unsigned int)argv[1][0]; i++)
-		sum = rand();
-	key[5] = mask[(sum ^ 229) & 63];
+	for (i = 0; i < n; i++)
+		sum += (int)username[i] * (int)username[i];
+	key[4] = charset[(sum ^ 0xef) & 0x3f];
+
+	/* key[5]: f6(username[0]) = call rand() username[0] times, (last ^ 0xe5) & 0x3f */
+	r = 0;
+	for (i = 0; i < (int)username[0]; i++)
+		r = rand();
+	key[5] = charset[(r ^ 0xe5) & 0x3f];
 
 	key[6] = '\0';
-
-	printf("%s", key);
-
+	printf("%s\n", key);
 	return (0);
 }
