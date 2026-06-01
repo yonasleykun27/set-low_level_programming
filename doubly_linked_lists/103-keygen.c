@@ -6,6 +6,7 @@
  * get_key - generates a 6-character key for a given username
  * @username: the username string
  * @n: length of the username
+ * @key: output buffer for the generated key
  *
  * Return: nothing, fills key array
  */
